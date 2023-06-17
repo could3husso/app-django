@@ -1,0 +1,28 @@
+version: '3.7'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: "rabbitmq"
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    networks:
+      - rabbitmq
+    restart: unless-stopped
+
+  api_gateway:
+    build: services/api_gateway
+    container_name: "api_gateway"
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - ALLOWED_HOSTS=localhost 127.0.0.1
+
+networks:
+  rabbitmq:
+    driver: bridge
